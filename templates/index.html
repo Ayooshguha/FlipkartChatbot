@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flipkart Chatbot</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            margin: 50px auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .chat-header p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .chat-body {
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #f1f3f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background-color: #6a11cb;
+            color: #fff;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background-color: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .chat-footer {
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-footer form {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-footer input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 25px;
+            outline: none;
+            margin-right: 10px;
+        }
+
+        .chat-footer button {
+            background-color: #6a11cb;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .chat-footer button:hover {
+            background-color: #2575fc;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <img src="https://static.vecteezy.com/system/resources/previews/016/017/018/non_2x/ecommerce-icon-free-png.png" alt="Chatbot Icon">
+            <h3>Flipkart Chatbot</h3>
+            <p>Ask me anything!</p>
+        </div>
+
+        <!-- Chat Body -->
+        <div class="chat-body" id="messageFormeight">
+            <!-- Messages will be dynamically added here -->
+        </div>
+
+        <!-- Chat Footer -->
+        <div class="chat-footer">
+            <form id="messageArea">
+                <input type="text" id="text" name="msg" placeholder="Type your message..." autocomplete="off" required>
+                <button type="submit" id="send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Chat Script -->
+    <script>
+        $(document).ready(function() {
+            $("#messageArea").on("submit", function(event) {
+                event.preventDefault();
+                const date = new Date();
+                const hour = date.getHours();
+                const minute = date.getMinutes();
+                const str_time = `${hour}:${minute}`;
+                const rawText = $("#text").val();
+
+                // Append user message
+                const userHtml = `
+                    <div class="message user">
+                        <div class="message-content">
+                            ${rawText}
+                            <span class="message-time">${str_time}</span>
+                        </div>
+                        <img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" alt="User">
+                    </div>
+                `;
+                $("#messageFormeight").append(userHtml);
+                $("#text").val("");
+
+                // Scroll to bottom
+                $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+
+                // Send message to server
+                $.ajax({
+                    url: "/get",
+                    type: "POST",
+                    data: { msg: rawText },
+                    success: function(data) {
+                        // Append bot response
+                        const botHtml = `
+                            <div class="message bot">
+                                <img src="https://static.vecteezy.com/system/resources/previews/016/017/018/non_2x/ecommerce-icon-free-png.png" alt="Bot">
+                                <div class="message-content">
+                                    ${data}
+                                    <span class="message-time">${str_time}</span>
+                                </div>
+                            </div>
+                        `;
+                        $("#messageFormeight").append(botHtml);
+
+                        // Scroll to bottom
+                        $(".chat-body").scrollTop($(".chat-body")[0].scrollHeight);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
